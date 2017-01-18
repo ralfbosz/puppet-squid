@@ -5,12 +5,18 @@ define squid::extra_config_section (
 ) {
 
   validate_string($comment)
-  validate_hash($config_entries)
+
+  if is_array($config_entries) {
+    each($config_entries) |$single_entry| {
+      validate_hash($single_entry)
+    }
+  } else {
+    validate_hash($config_entries)
+  }
 
   concat::fragment{"squid_extra_config_section_${comment}":
     target  => $::squid::config,
     content => template('squid/squid.conf.extra_config_section.erb'),
     order   => "${order}-${comment}",
   }
-
 }
