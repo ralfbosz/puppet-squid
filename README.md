@@ -79,9 +79,9 @@ class{'::squid':
                                    'http://example.com/anotherpath'],
                        },
                   },
-  http_access  => { 'our_networks hosts' => { action => 'allow', },
-  http_ports   => { '10000' => { options => 'accel vhost'} },
-  snmp_ports   => { '1000' => { process_number => 3 },
+  http_access  => { 'our_networks hosts' => { action => 'allow', }},
+  http_ports   => { '10000' => { options => 'accel vhost', }},
+  snmp_ports   => { '1000' => { process_number => 3 }},
   cache_dirs   => { '/data/' => { type => 'ufs', options => '15000 32 256 min-size=32769', process_number => 2 }},
 }
 ```
@@ -319,7 +319,7 @@ These may be defined as a hash passed to ::squid
 ### Defined Type squid::extra\_config\_section
 Squid has a large number of configuration directives.  Not all of these have been exposed individually in this module.  For those that haven't, the `extra_config_section` defined type can be used.
 
-```puppet
+```puppet hash example
 squid::extra_config_section {'mail settings':
   order          => '60',
   config_entries => {
@@ -335,6 +335,28 @@ Results in a squid configuration of
 # mail settings
 mail_from squid@example.com
 mail_program mail
+```
+
+```puppet array example
+squid::extra_config_section { 'refresh patterns':
+  order          => '60',
+  config_entries => [{
+    'refresh_pattern' => ['^ftp:           1440    20%     10080',
+                          '^gopher:        1440    0%      1440',
+                          '-i (/cgi-bin/|\?) 0     0%      0',
+                          '.               0       20%     4320'],
+  }],
+}
+```
+
+Results in a squid configuration of
+
+```
+# refresh_patterns
+refresh_pattern ^ftp:           1440    20%     10080
+refresh_pattern ^gopher:        1440    0%      1440
+refresh_pattern -i (/cgi-bin/|\?) 0     0%      0
+refresh_pattern .               0       20%     4320
 ```
 
 #### Parameters for Type squid::extra\_config\_section
