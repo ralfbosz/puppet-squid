@@ -13,6 +13,7 @@ describe 'squid::icp_access' do
         '
       end
       let(:title) { 'myrule' }
+
       context 'when parameters are unset' do
         it { is_expected.to contain_concat_fragment('squid_icp_access_myrule').with_target('/tmp/squid.conf') }
         it { is_expected.to contain_concat_fragment('squid_icp_access_myrule').with_order('30-05-allow') }
@@ -26,9 +27,20 @@ describe 'squid::icp_access' do
             order: '08'
           }
         end
+
         it { is_expected.to contain_concat_fragment('squid_icp_access_this and that').with_target('/tmp/squid.conf') }
         it { is_expected.to contain_concat_fragment('squid_icp_access_this and that').with_order('30-08-deny') }
         it { is_expected.to contain_concat_fragment('squid_icp_access_this and that').with_content(%r{^icp_access\s+deny\s+this and that$}) }
+      end
+
+      context 'with unknown action' do
+        let(:params) do
+          {
+            action: 'unknown_action'
+          }
+        end
+
+        it { is_expected.to compile.and_raise_error(%r{parameter 'action' expects a match}) }
       end
     end
   end

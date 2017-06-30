@@ -5,6 +5,7 @@ describe 'squid' do
       let(:facts) do
         facts
       end
+
       context 'with defaults for all parameters' do
         it { is_expected.to contain_class('squid') }
         it { is_expected.to contain_class('squid::install') }
@@ -81,6 +82,7 @@ describe 'squid' do
             workers: 8
           }
         end
+
         it { is_expected.to contain_concat_fragment('squid_header').with_target('/tmp/squid.conf') }
         it { is_expected.to contain_concat_fragment('squid_header').with_content(%r{^cache_mem\s+1024 MB$}) }
         it { is_expected.to contain_concat_fragment('squid_header').with_content(%r{^memory_cache_shared\s+on$}) }
@@ -89,6 +91,50 @@ describe 'squid' do
         it { is_expected.to contain_concat_fragment('squid_header').with_content(%r{^coredump_dir\s+/tmp/core$}) }
         it { is_expected.to contain_concat_fragment('squid_header').with_content(%r{^max_filedescriptors\s+1000$}) }
         it { is_expected.to contain_concat_fragment('squid_header').with_content(%r{^workers\s+8$}) }
+      end
+
+      context 'with memory_cache_shared parameter set to true' do
+        let :params do
+          {
+            config: '/tmp/squid.conf',
+            memory_cache_shared: true
+          }
+        end
+
+        it { is_expected.to contain_concat_fragment('squid_header').with_content(%r{^memory_cache_shared\s+on$}) }
+      end
+
+      context 'with memory_cache_shared parameter set to on' do
+        let :params do
+          {
+            config: '/tmp/squid.conf',
+            memory_cache_shared: 'on'
+          }
+        end
+
+        it { is_expected.to contain_concat_fragment('squid_header').with_content(%r{^memory_cache_shared\s+on$}) }
+      end
+
+      context 'with memory_cache_shared parameter set to false' do
+        let :params do
+          {
+            config: '/tmp/squid.conf',
+            memory_cache_shared: false
+          }
+        end
+
+        it { is_expected.to contain_concat_fragment('squid_header').with_content(%r{^memory_cache_shared\s+off$}) }
+      end
+
+      context 'with memory_cache_shared parameter set to off' do
+        let :params do
+          {
+            config: '/tmp/squid.conf',
+            memory_cache_shared: 'off'
+          }
+        end
+
+        it { is_expected.to contain_concat_fragment('squid_header').with_content(%r{^memory_cache_shared\s+off$}) }
       end
 
       context 'with one acl parameter set' do
@@ -104,6 +150,7 @@ describe 'squid' do
             }
           }
         end
+
         it { is_expected.to contain_concat_fragment('squid_header').with_target('/tmp/squid.conf') }
         it { is_expected.to contain_concat_fragment('squid_acl_myacl').with_order('10-07-urlregex') }
         it { is_expected.to contain_concat_fragment('squid_acl_myacl').with_content(%r{^acl\s+myacl\s+urlregex\shttp://example.org/$}) }
@@ -128,6 +175,7 @@ describe 'squid' do
             }
           }
         end
+
         it { is_expected.to contain_concat_fragment('squid_header').with_target('/tmp/squid.conf') }
         it { is_expected.to contain_concat_fragment('squid_acl_myacl').with_order('10-07-urlregex') }
         it { is_expected.to contain_concat_fragment('squid_acl_myacl').with_content(%r{^acl\s+myacl\s+urlregex\shttp://example.org/$}) }
@@ -150,6 +198,7 @@ describe 'squid' do
             }
           }
         end
+
         it { is_expected.to contain_concat_fragment('squid_header').with_target('/tmp/squid.conf') }
         it { is_expected.to contain_concat_fragment('squid_http_access_this and that').with_target('/tmp/squid.conf') }
         it { is_expected.to contain_concat_fragment('squid_http_access_this and that').with_order('20-08-deny') }
@@ -176,6 +225,7 @@ describe 'squid' do
 
           }
         end
+
         it { is_expected.to contain_concat_fragment('squid_header').with_target('/tmp/squid.conf') }
         it { is_expected.to contain_concat_fragment('squid_http_access_this and that').with_target('/tmp/squid.conf') }
         it { is_expected.to contain_concat_fragment('squid_http_access_this and that').with_order('20-08-deny') }
@@ -200,6 +250,7 @@ describe 'squid' do
             }
           }
         end
+
         it { is_expected.to contain_concat_fragment('squid_header').with_target('/tmp/squid.conf') }
         it { is_expected.to contain_concat_fragment('squid_ssl_bump_bump_step1').with_target('/tmp/squid.conf') }
         it { is_expected.to contain_concat_fragment('squid_ssl_bump_bump_step1').with_order('25-08-bump') }
@@ -219,6 +270,7 @@ describe 'squid' do
             }
           }
         end
+
         it { is_expected.to contain_concat_fragment('squid_header').with_target('/tmp/squid.conf') }
         it { is_expected.to contain_concat_fragment('squid_sslproxy_cert_error_allow_all').with_target('/tmp/squid.conf') }
         it { is_expected.to contain_concat_fragment('squid_sslproxy_cert_error_allow_all').with_order('35-08-allow') }
@@ -238,6 +290,7 @@ describe 'squid' do
             }
           }
         end
+
         it { is_expected.to contain_concat_fragment('squid_header').with_target('/tmp/squid.conf') }
         it { is_expected.to contain_concat_fragment('squid_icp_access_this and that').with_target('/tmp/squid.conf') }
         it { is_expected.to contain_concat_fragment('squid_icp_access_this and that').with_order('30-08-deny') }
@@ -263,6 +316,7 @@ describe 'squid' do
 
           }
         end
+
         it { is_expected.to contain_concat_fragment('squid_header').with_target('/tmp/squid.conf') }
         it { is_expected.to contain_concat_fragment('squid_icp_access_this and that').with_target('/tmp/squid.conf') }
         it { is_expected.to contain_concat_fragment('squid_icp_access_this and that').with_order('30-08-deny') }
@@ -277,6 +331,7 @@ describe 'squid' do
           { config: '/tmp/squid.conf',
             http_ports: { 2000 => { 'options' => 'special for 2000' } } }
         end
+
         it { is_expected.to contain_concat_fragment('squid_header').with_target('/tmp/squid.conf') }
         it { is_expected.to contain_concat_fragment('squid_http_port_2000').with_order('30-05') }
         it { is_expected.to contain_concat_fragment('squid_http_port_2000').with_content(%r{^http_port\s+2000\s+special for 2000$}) }
@@ -287,6 +342,7 @@ describe 'squid' do
           { config: '/tmp/squid.conf',
             https_ports: { 2001 => { 'options' => 'special for 2001' } } }
         end
+
         it { is_expected.to contain_concat_fragment('squid_header').with_target('/tmp/squid.conf') }
         it { is_expected.to contain_concat_fragment('squid_https_port_2001').with_order('30-05') }
         it { is_expected.to contain_concat_fragment('squid_https_port_2001').with_content(%r{^https_port\s+2001\s+special for 2001$}) }
@@ -298,6 +354,7 @@ describe 'squid' do
             snmp_ports: { 2000 => { 'options'        => 'special for 2000',
                                     'process_number' => 3 } } }
         end
+
         it { is_expected.to contain_concat_fragment('squid_header').with_target('/tmp/squid.conf') }
         it { is_expected.to contain_concat_fragment('squid_snmp_port_2000').with_content(%r{^snmp_port\s+2000\s+special for 2000$}) }
         it { is_expected.to contain_concat_fragment('squid_snmp_port_2000').with_content(%r{^if \${process_number} = 3$}) }
@@ -310,6 +367,7 @@ describe 'squid' do
             cache_dirs: { '/data' => { 'type'    => 'special',
                                        'options' => 'my options for special type' } } }
         end
+
         it { is_expected.to contain_concat_fragment('squid_header').with_target('/tmp/squid.conf') }
         it { is_expected.to contain_file('/data').with_ensure('directory') }
       end
@@ -320,14 +378,14 @@ describe 'squid' do
             config: '/tmp/squid.conf',
             extra_config_sections: {
               'mail settings' => {
-                'order' => 22,
+                'order' => '22',
                 'config_entries' => {
                   'mail_from'    => 'squid@example.com',
                   'mail_program' => 'mail'
                 }
               },
               'other settings' => {
-                'order' => 42,
+                'order' => '42',
                 'config_entries' => {
                   'dns_timeout' => '5 seconds'
                 }
@@ -335,6 +393,7 @@ describe 'squid' do
             }
           }
         end
+
         it { is_expected.to contain_concat_fragment('squid_header').with_target('/tmp/squid.conf') }
         it { is_expected.to contain_squid__extra_config_section('mail settings') }
         it { is_expected.to contain_squid__extra_config_section('other settings') }
